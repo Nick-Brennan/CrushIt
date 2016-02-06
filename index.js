@@ -25,6 +25,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({secret: 'hide this later'}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //passport configuration
@@ -52,8 +54,7 @@ passport.deserializeUser(function(id, done){
   });
 });
 
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 //routes
 app.get('/', function(req, res){
@@ -69,38 +70,78 @@ app.get('/login', function(req, res){
   });
 });
 
-
-
-// error handlers
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.get('/signup', function(req, res){
+  res.render('signup', {
+    user: req.user
+  });
 });
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
+app.post('/login', function(req, res, next){
+  passport.authenticate('local', function(err, user, info){
+    if(err) return next(err);
+    if(!user){
+      res.redirect('login')
+    }  
+    req.logIn(user, function(err){
+      if(err)return next(err);
+      return res.redirect('/');
+    });
+  })(req, res, next);
+});
+
+app.post('/signup', function(req, res){
+  var user = new db.User({
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password
+  });
+
+  console.log(user);
+  console.log(req.logIn.toString());
+  user.save(function(err){
+    req.logIn(user, function(err){
+      console.log(err);
+      console.log('redirecting');
+      res.redirect('/');
     });
   });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
 });
+
+// // error handlers
+
+// // catch 404 and forward to error handler
+// app.use(function(req, res, next) {
+//   var err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+// });
+
+// // development error handler
+// // will print stacktrace
+// if (app.get('env') === 'development') {
+//   app.use(function(err, req, res, next) {
+//     res.status(err.status || 500);
+//     res.render('error', {
+//       message: err.message,
+//       error: err
+//     });
+//   });
+// }
+
+// // production error handler
+// // no stacktraces leaked to user
+// app.use(function(err, req, res, next) {
+//   res.status(err.status || 500);
+//   res.render('error', {
+//     message: err.message,
+//     error: {}
+//   });
+// });
 
 app.listen(process.env.PORT || 3000, function(req, res){
   console.log("Crush Is On port " + (process.env.PORT || 3000));
