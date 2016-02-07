@@ -1,4 +1,5 @@
 var express = require('express');
+require('dotenv').config();
 var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
@@ -12,6 +13,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt-nodejs');
 var async = require('async');
 var crypto = require('crypto');
+var flash = require('express-flash');
 
 passport.use(new LocalStrategy(function(username, password, done) {
   User.findOne({ username: username }, function(err, user) {
@@ -84,7 +86,8 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
-app.use(session({ secret: 'session secret key' }));
+app.use(session({ secret: process.env.SESSION_KEY }));
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -92,7 +95,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.get('/', function(req, res){
   res.render('index', {
-    title: 'Express',
+    title: 'Crush',
     user: req.user
   });
 });
@@ -112,6 +115,16 @@ app.get('/signup', function(req, res) {
 app.get('/logout', function(req, res){
   req.logout();
   res.redirect('/');
+});
+
+app.get('/forgot', function(req, res){
+  res.render('forgot', {
+    user: req.user
+  });
+});
+
+app.get('/test', function(req, res){
+  res.sendFile(path.join(__dirname, 'views') + "/test.html");
 });
 
 app.post('/login', function(req, res, next) {
@@ -138,6 +151,56 @@ app.post('/signup', function(req, res) {
     req.logIn(user, function(err) {
       res.redirect('/');
     });
+  });
+});
+
+app.post('/forgot', function(req, res, next){
+  async.waterfall([
+    function(done){
+        crypto.randomBytes(20, function(err, buf){
+          var token = buf.toString('hex');
+          done(err, token);
+        });
+    },
+    function(token, done){
+      User.findOne({email: req.body.email}, function(err, user){
+        if(!user){
+          req.flash('error', "Email Not Found");
+          return res.redirect('/forgot');
+        }
+
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 1800000; //30 Min
+
+        user.save(function(err){
+          done(err, token, user);
+        });
+      });
+    },
+    function(token, user, done){
+      var smtpTransport = nodemailer.createTransport('SMTP', {
+        service: 'Gmail',
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS
+        }
+      });
+      var mailOptions = {
+        to: user.email,
+        from: 'passwordreset@crush.it',
+        subject: 'Crush Password Reset Request',
+        text: 'If you requested to reset your Crush password please click the following link: \n\n' +
+          'http://' + req.headers.host + '/reset/' + token + '\n\n' + 
+          'If you did not request to change you password, please ignore this email.'
+      };
+      smtpTransport.sendMail(mailOptions, function(err){
+        req.flash('info', 'An email has been sent to ' + user.email + ' with instructions to reset your password.');
+        done(err, 'done');
+      });
+    }
+  ], function(err){
+    if(err) return next(err);
+    res.redirect('/forgot');
   });
 });
 

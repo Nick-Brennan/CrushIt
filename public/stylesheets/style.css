@@ -6,3 +6,9 @@ body {
 a {
   color: #00B7FF;
 }
+
+#greeting{
+	padding-top: 10px;
+	padding-right: 10px;
+	color: lightgrey;
+}
