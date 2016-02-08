@@ -127,6 +127,18 @@ app.get('/test', function(req, res){
   res.sendFile(path.join(__dirname, 'views') + "/test.html");
 });
 
+app.get('/reset/:token', function(req, res){
+  User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now()}}, function(err, user){
+    if(!user){
+      req.flash('error', 'Your password reset token is invalid or has expired.');
+      return res.redirect('/forgot');
+    }
+    res.render('reset', {
+      user: req.user
+    });
+  });
+});
+
 app.post('/login', function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
     if (err) return next(err)
@@ -205,6 +217,51 @@ app.post('/forgot', function(req, res, next){
   });
 });
 
+app.post('/reset/:token', function(req, res){
+  async.waterfall([
+      function(done){
+        User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: {$gt: Date.now()}}, function(err, user){
+          if(!user){
+            req.flash('error', 'Your password reset token is invalid or has expired.');
+            return res.redirect('back');
+          }
+          user.password = req.body.password;
+          user.resetPasswordToken = undefined;
+          user.resetPasswordExpires = undefined;
+          user.save(function(err){
+            req.logIn(user, function(err){
+              done(err, user);
+            });
+          });
+        });
+      },
+      function(user, done){
+        var smtpTransport = nodemailer.createTransport('SMTP', {
+            auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS
+          }
+        });
+        var mailOptions = {
+          to: user.email,
+          from: 'passwordreset@crush.it',
+          subject: 'Password Changed',
+          text: 'Hi!\n\n This email is to confirm that your Crush password has been changed'
+        };
+        smtpTransport.sendMail(mailOptions, function(err){
+          req.flash('success', 'Password Changed Successfully');
+          done(err);
+        });
+      }
+    ], function(err){
+      res.redirect('/');
+    });
+});
+
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+
+
+
