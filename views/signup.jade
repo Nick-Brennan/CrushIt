@@ -11,8 +11,9 @@ block content
       input.form-control(type='email', name='email')
     .form-group
       label(for='password') Password
-      input.form-control(type='password', name='password')
+      input.form-control(type='password', name='password', id='password')
     .form-group
       label(for='confirm') Confirm Password
-      input.form-control(type='password', name='confirm')
-    button.btn.btn-primary(type='submit') Signup
+      input.form-control(type='password', name='confirm', id='confirm', onkeyup="checkPass(); return false;")
+      span(id='confirmMessage')
+    button.btn.btn-primary(type='reset', id='submit') Signup
