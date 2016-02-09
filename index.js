@@ -1,3 +1,4 @@
+// Dependencies
 var express = require('express');
 require('dotenv').config();
 var path = require('path');
@@ -198,6 +199,8 @@ app.post('/reset/:token', function(req, res){
     });
 });
 
+
+// Server Initialization
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
