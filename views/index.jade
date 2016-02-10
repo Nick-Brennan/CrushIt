@@ -3,3 +3,19 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+
+  hr
+
+  if user
+    form(method='POST')
+      legend Submit New Post
+        .form-group
+        label(for='url') Site Url  &nbsp
+        input.form-cotrol(type='url', name='url', id='url')
+        .form-group
+        label(for='description') Description
+        textarea.form-control(name='description', id='description')
+        br
+        button.btn.btn-primary(type='submit', id='siteSubmit') Create Post
+        br
+
