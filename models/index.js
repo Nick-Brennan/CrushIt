@@ -4,3 +4,4 @@ mongoose.connect(	process.env.MONGOLAB_URI ||
 					"localhost");
 
 module.exports.User = require('./user.js');
+module.exports.Site = require('./site.js');
