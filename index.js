@@ -35,9 +35,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', function(req, res){
+  var testArr = [1, 2, 'hi', 'poop'];
   res.render('index', {
     title: 'Crush',
-    user: req.user
+    user: req.user,
+    testArr: testArr
   });
 });
 
