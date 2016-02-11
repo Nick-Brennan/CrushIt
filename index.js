@@ -36,11 +36,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.get('/', function(req, res){
   var testArr = [1, 2, 'hi', 'poop'];
-  res.render('index', {
+  var sts;
+  db.Site.find({}, function(err, mySites){
+    console.log(mySites);
+    sts = mySites;
+    console.log('found these sites ******')
+    console.log(sts);
+    res.render('index', {
     title: 'Crush',
     user: req.user,
-    testArr: testArr
+    testArr: testArr,
+    sites: sts
   });
+});
+
 });
 
 app.get('/login', function(req, res) {
@@ -199,6 +208,19 @@ app.post('/reset/:token', function(req, res){
     ], function(err){
       res.redirect('/');
     });
+});
+
+app.post('/', function(req, res){
+  console.log(req);
+  var site = new db.Site({
+    url: req.body.url,
+    description: req.body.description
+  });
+
+  site.save(function(){
+    console.log('succeded in saving site');
+  });
+  res.redirect('/');
 });
 
 

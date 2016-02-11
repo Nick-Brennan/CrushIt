@@ -5,3 +5,4 @@ mongoose.connect(	process.env.MONGOLAB_URI ||
 
 module.exports.User = require('./user.js');
 module.exports.Site = require('./site.js');
+module.exports.Comment = require('./comment.js');
