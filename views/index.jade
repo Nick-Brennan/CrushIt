@@ -5,13 +5,16 @@ block content
   p Welcome to #{title}
   hr
   
-  ul
-    each val in sites
-      li= val.url
-
-  ul
-    each val in testArr
-      li= val
+  each site, i in sites 
+   div 
+     div
+       a(href='#{site.url}') 
+         h1= site.url 
+       p= site.description
+   if user
+     button.btn.btn-success(class='upvoteButton', id='#{site.id}') 
+     &nbsp
+     button.btn.btn-danger(class='upvoteButton', id='#{site.id}') 
 
   if user
     form(method='POST')
