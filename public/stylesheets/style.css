@@ -16,3 +16,7 @@ ul{
 	padding-right: 10px;
 	color: lightgrey;
 }
+
+.noShow{
+	display: none;
+}

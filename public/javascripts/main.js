@@ -27,3 +27,7 @@ function checkPass()
         message.innerHTML = "Passwords Do Not Match!"
     }
 }  
+
+function showForm(){
+    $('#postForm').toggleClass('noShow');
+}

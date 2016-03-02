@@ -17,16 +17,22 @@ block content
      button.btn.btn-danger(class='upvoteButton', id='#{site.id}') 
 
   if user
-    form(method='POST')
-      legend Submit New Post
-        .form-group
-        label(for='url') Site Url  &nbsp
-        input.form-cotrol(type='url', name='url', id='url')
-        .form-group
-        label(for='description') Description
-        textarea.form-control(name='description', id='description')
-        br
-        button.btn.btn-primary(type='submit', id='siteSubmit') Create Post
-        br
+    br
+    br
+    button.btn.btn-info(id='showPostFormButton', onclick='showForm()') Add New
+    br
+    br
+    div(class='noShow' id='postForm')
+      form(method='POST')
+        legend Submit New Post
+          .form-group
+          label(for='url') Site Url  &nbsp
+          input.form-cotrol(type='url', name='url', id='url')
+          .form-group
+          label(for='description') Description
+          textarea.form-control(name='description', id='description')
+          br
+          button.btn.btn-primary(type='submit', id='siteSubmit') Create Post
+          br
 script.
   console.log(sites || 'nothing')
