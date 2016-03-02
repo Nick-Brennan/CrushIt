@@ -12,9 +12,9 @@ block content
          h1= site.url 
        p= site.description
    if user
-     button.btn.btn-success(class='upvoteButton', id='#{site.id}') 
+     button.btn.btn-success(class='upvoteButton', id='#{site.id}', onclick='voteUp(this, "#{user.id}")')
      &nbsp
-     button.btn.btn-danger(class='upvoteButton', id='#{site.id}') 
+     button.btn.btn-danger(class='upvoteButton', id='#{site.id}', onclick='voteDown(this, "#{user.id}")')
 
   if user
     br

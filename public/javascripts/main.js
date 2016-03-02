@@ -31,3 +31,13 @@ function checkPass()
 function showForm(){
     $('#postForm').toggleClass('noShow');
 }
+
+function voteUp(x, y){
+    console.log(x.id);
+    console.log(y);
+}
+
+function voteDown(x, y){
+    console.log(x.id);
+    console.log(y);
+}
