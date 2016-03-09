@@ -80,9 +80,10 @@ app.get('/test', function(req, res){
 });
 
 app.get('/reset/:token', function(req, res){
-  db.User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now()}}, function(err, user){
+  db.User.findOne({resetPasswordToken: req.params.token,
+    resetPasswordExpires: { $gt: Date.now()}}, function(err, user){
     if(!user){
-      req.flash('error', 'Your password reset token is invalid or has expired.');
+      req.flash('error', 'Your password reset token is invalid / has expired.');
       return res.redirect('/forgot');
     }
     res.render('reset', {
@@ -155,7 +156,7 @@ app.post('/forgot', function(req, res, next){
         from: 'passwordreset@crush.it',
         subject: 'Crush Password Reset Request',
         text: 'If you requested to reset your Crush password please click the following link: \n\n' +
-          'http://' + req.headers.host + '/reset/' + token + '\n\n' + 
+          'http://' + req.headers.host + '/reset/' + token + '\n\n' +
           'If you did not request to change you password, please ignore this email.'
       };
       smtpTransport.sendMail(mailOptions, function(err){
@@ -228,7 +229,3 @@ app.post('/', function(req, res){
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
-
-
-
-
